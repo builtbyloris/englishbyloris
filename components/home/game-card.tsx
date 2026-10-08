@@ -1,42 +1,15 @@
 import Link from "next/link";
 
+import { GameVisual } from "@/components/games/game-visual";
+import type { GameSlug } from "@/lib/games/catalog";
+
 type GameCardProps = {
   category: string;
   description: string;
-  game: "describe-it" | "verb-challenge" | "word-rush";
+  game: GameSlug;
   metadata: string;
   title: string;
 };
-
-function GameVisual({ game }: Pick<GameCardProps, "game">) {
-  if (game === "word-rush") {
-    return (
-      <div className="game-card-visual word-rush-visual" aria-hidden="true">
-        {Array.from("WORD").map((letter) => (
-          <span key={letter}>{letter}</span>
-        ))}
-      </div>
-    );
-  }
-
-  if (game === "verb-challenge") {
-    return (
-      <div className="game-card-visual verb-challenge-visual" aria-hidden="true">
-        <span>go</span>
-        <span>went</span>
-        <span>gone</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="game-card-visual describe-it-visual" aria-hidden="true">
-      <span>clear</span>
-      <span>bright</span>
-      <span>calm</span>
-    </div>
-  );
-}
 
 export function GameCard({
   category,

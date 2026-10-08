@@ -1,15 +1,10 @@
 import type { CefrLevel } from "@/lib/onboarding/validation";
+import { gameCatalog } from "@/lib/games/catalog";
+import { cefrDescriptions } from "@/lib/learning/cefr";
 
 import { GameCard } from "./game-card";
 import { StreakCard } from "./streak-card";
 import { XPIndicator } from "./xp-indicator";
-
-const levelDescriptions: Record<CefrLevel, string> = {
-  A1: "Beginner",
-  A2: "Elementary",
-  B1: "Intermediate",
-  B2: "Upper Intermediate",
-};
 
 export type HomeProfile = {
   currentStreak: number | null;
@@ -25,7 +20,7 @@ function getFirstName(displayName: string | null) {
 export function HomeExperience({ profile }: { profile: HomeProfile }) {
   const firstName = getFirstName(profile.displayName);
   const levelDescription = profile.englishLevel
-    ? levelDescriptions[profile.englishLevel]
+    ? cefrDescriptions[profile.englishLevel]
     : null;
 
   return (
@@ -88,27 +83,16 @@ export function HomeExperience({ profile }: { profile: HomeProfile }) {
           <p>Three short ways to practise with purpose.</p>
         </div>
         <div className="games-grid">
-          <GameCard
-            category="Vocabulary"
-            description="Build quick recognition and choose words in context."
-            game="word-rush"
-            metadata="10 questions · 2–3 min"
-            title="Word Rush"
-          />
-          <GameCard
-            category="Grammar in context"
-            description="Strengthen verb forms and make confident tense choices."
-            game="verb-challenge"
-            metadata="10 questions · 3–4 min"
-            title="Verb Challenge"
-          />
-          <GameCard
-            category="Adjectives"
-            description="Use precise descriptions, opposites and nuanced choices."
-            game="describe-it"
-            metadata="10 questions · 2–3 min"
-            title="Describe It"
-          />
+          {gameCatalog.map((game) => (
+            <GameCard
+              category={game.category}
+              description={game.homeDescription}
+              game={game.slug}
+              key={game.slug}
+              metadata={`${game.questionCount} questions · ${game.duration}`}
+              title={game.title}
+            />
+          ))}
         </div>
       </section>
 
