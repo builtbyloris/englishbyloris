@@ -97,6 +97,7 @@ textarea,
 
 .wordmark {
   margin: 0;
+  color: var(--color-text-primary);
   font-size: clamp(2rem, 1.625rem + 1.875vw, 3.25rem);
   font-weight: 600;
   line-height: var(--line-height-tight);
@@ -288,6 +289,7 @@ textarea,
 }
 
 .onboarding-heading h1 {
+  color: var(--color-text-primary);
   font-size: var(--font-size-page-title);
   line-height: var(--line-height-heading);
   text-wrap: balance;
