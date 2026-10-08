@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* Add project-specific options only when they are required. */
+  images: {
+    remotePatterns: [
+      {
+        hostname: "*.googleusercontent.com",
+        pathname: "/**",
+        protocol: "https",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

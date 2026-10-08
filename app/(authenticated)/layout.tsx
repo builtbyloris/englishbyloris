@@ -22,5 +22,7 @@ export default async function AuthenticatedLayout({
     redirect("/onboarding");
   }
 
-  return children;
+  return (
+    <div data-theme={authState.profile.theme ?? undefined}>{children}</div>
+  );
 }

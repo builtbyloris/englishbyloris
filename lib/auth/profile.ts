@@ -7,15 +7,18 @@ import {
   type CefrLevel,
   type LearningInterest,
 } from "@/lib/onboarding/validation";
+import { isAppTheme, type AppTheme } from "@/lib/profile/validation";
 import { createClient } from "@/lib/supabase/server";
 
-type AuthenticatedProfile = {
+export type AuthenticatedProfile = {
+  avatarUrl: string | null;
   currentStreak: number | null;
   displayName: string | null;
   englishLevel: CefrLevel | null;
   id: string;
   learningInterests: LearningInterest[];
   onboardingCompleted: boolean;
+  theme: AppTheme | null;
   xp: number | null;
 };
 
@@ -57,7 +60,7 @@ async function resolveAuthState(
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select(
-      "current_streak, display_name, english_level, learning_interests, onboarding_completed, xp",
+      "avatar_url, current_streak, display_name, english_level, learning_interests, onboarding_completed, theme, xp",
     )
     .eq("id", userId)
     .maybeSingle();
@@ -68,6 +71,8 @@ async function resolveAuthState(
 
   return {
     profile: {
+      avatarUrl:
+        typeof profile.avatar_url === "string" ? profile.avatar_url : null,
       currentStreak: getNonnegativeMetric(profile.current_streak),
       displayName: profile.display_name,
       englishLevel: isCefrLevel(profile.english_level)
@@ -78,6 +83,7 @@ async function resolveAuthState(
         ? profile.learning_interests.filter(isLearningInterest)
         : [],
       onboardingCompleted: profile.onboarding_completed,
+      theme: isAppTheme(profile.theme) ? profile.theme : null,
       xp: getNonnegativeMetric(profile.xp),
     },
     status: "signed-in",
