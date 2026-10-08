@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { SignOutForm } from "@/components/auth/sign-out-form";
+import { OnboardingFlow } from "@/features/onboarding/onboarding-flow";
 import { getAuthErrorPath } from "@/lib/auth/errors";
 import { getAuthState } from "@/lib/auth/profile";
 
@@ -21,14 +22,15 @@ export default async function OnboardingPage() {
 
   return (
     <main className="app-shell">
-      <div className="app-container placeholder-content">
-        <p className="wordmark wordmark-small">englishbyloris</p>
-        <section className="placeholder-card" aria-labelledby="onboarding-title">
-          <p className="eyebrow">Account ready</p>
-          <h1 id="onboarding-title">Onboarding</h1>
-          <p>Your learning setup will be added in the next milestone.</p>
+      <div className="app-container onboarding-content">
+        <header className="onboarding-header">
+          <p className="wordmark wordmark-small">englishbyloris</p>
           <SignOutForm />
-        </section>
+        </header>
+        <OnboardingFlow
+          initialInterests={authState.profile.learningInterests}
+          initialLevel={authState.profile.englishLevel}
+        />
       </div>
     </main>
   );

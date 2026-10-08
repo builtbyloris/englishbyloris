@@ -1,10 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import {
+  isCefrLevel,
+  isLearningInterest,
+  type CefrLevel,
+  type LearningInterest,
+} from "@/lib/onboarding/validation";
 import { createClient } from "@/lib/supabase/server";
 
 type AuthenticatedProfile = {
   displayName: string | null;
+  englishLevel: CefrLevel | null;
   id: string;
+  learningInterests: LearningInterest[];
   onboardingCompleted: boolean;
 };
 
@@ -25,7 +33,9 @@ export async function getAuthState(existingClient?: SupabaseClient): Promise<Aut
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("display_name, onboarding_completed")
+    .select(
+      "display_name, english_level, learning_interests, onboarding_completed",
+    )
     .eq("id", userId)
     .maybeSingle();
 
@@ -36,7 +46,13 @@ export async function getAuthState(existingClient?: SupabaseClient): Promise<Aut
   return {
     profile: {
       displayName: profile.display_name,
+      englishLevel: isCefrLevel(profile.english_level)
+        ? profile.english_level
+        : null,
       id: userId,
+      learningInterests: Array.isArray(profile.learning_interests)
+        ? profile.learning_interests.filter(isLearningInterest)
+        : [],
       onboardingCompleted: profile.onboarding_completed,
     },
     status: "signed-in",
