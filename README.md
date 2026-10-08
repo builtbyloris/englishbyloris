@@ -19,6 +19,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Replace the placeholders in `.env.local` with the Project URL and publishable key from the Supabase project Connect dialog. Never commit local environment files or credentials.
 
+Set `NEXT_PUBLIC_SITE_URL=http://localhost:3000` for local OAuth callbacks. In production, set it to the canonical HTTPS application origin without a trailing path.
+
 ## Theme foundations
 
 Light and Dark tokens are available without adding a theme preference or selector yet. For manual development checks, set `data-theme="light"` or `data-theme="dark"` on the root `<html>` element in browser developer tools. With no attribute, the existing Light presentation remains the temporary technical fallback; the product default is still undecided.
@@ -68,6 +70,38 @@ npx supabase db push
 ```
 
 Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in Vercel for Preview and Production environments. No secret database key is required by the Next.js application at this stage.
+
+## Google OAuth
+
+Google is the only V1 authentication provider. The app starts the cookie-backed PKCE flow through Supabase, exchanges the returned code at `/auth/callback`, validates identity with `getClaims()` and routes from the real `profiles.onboarding_completed` value. `/home` and `/onboarding` are server-protected placeholders until their dedicated milestones.
+
+### Google Cloud
+
+1. In Google Auth Platform, configure the consent screen and create an OAuth client with application type **Web application**.
+2. Add `http://localhost:3000` as an Authorized JavaScript origin for local development.
+3. Add the Supabase callback below as an Authorized redirect URI:
+
+   ```text
+   https://ayzjcttjlcmwgzsvkigs.supabase.co/auth/v1/callback
+   ```
+
+4. Copy the Google Client ID and Client Secret. Store both only in the Supabase Google provider settings; do not add them to this repository or to public Next.js environment variables.
+
+### Supabase
+
+In project `ayzjcttjlcmwgzsvkigs`:
+
+1. Open **Authentication → Providers → Google**, enable Google and enter the Google Client ID and Client Secret.
+2. Open **Authentication → URL Configuration**. Use `http://localhost:3000` as the Site URL while testing locally and add this exact Redirect URL:
+
+   ```text
+   http://localhost:3000/auth/callback
+   ```
+
+3. For production, replace the Site URL with the canonical HTTPS Vercel domain, add `https://your-domain.example/auth/callback` to the redirect allow list and set the same origin in Vercel as `NEXT_PUBLIC_SITE_URL`.
+4. If Vercel preview authentication is required later, add a narrowly scoped Vercel preview redirect pattern in Supabase and set the preview environment URL separately. Keep the production callback exact.
+
+No Google Client Secret is needed by Next.js. Login and logout should be tested again after the provider and allowed redirect URLs are configured.
 
 ## Deployment
 
