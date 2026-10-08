@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { cache } from "react";
 
 import {
   isCefrLevel,
@@ -9,11 +10,13 @@ import {
 import { createClient } from "@/lib/supabase/server";
 
 type AuthenticatedProfile = {
+  currentStreak: number | null;
   displayName: string | null;
   englishLevel: CefrLevel | null;
   id: string;
   learningInterests: LearningInterest[];
   onboardingCompleted: boolean;
+  xp: number | null;
 };
 
 export type AuthState =
@@ -21,7 +24,27 @@ export type AuthState =
   | { status: "profile-unavailable" }
   | { profile: AuthenticatedProfile; status: "signed-in" };
 
-export async function getAuthState(existingClient?: SupabaseClient): Promise<AuthState> {
+function getNonnegativeMetric(value: unknown) {
+  if (
+    typeof value === "number" &&
+    Number.isSafeInteger(value) &&
+    value >= 0
+  ) {
+    return value;
+  }
+
+  if (typeof value === "string" && /^\d+$/.test(value)) {
+    const parsedValue = Number(value);
+
+    return Number.isSafeInteger(parsedValue) ? parsedValue : null;
+  }
+
+  return null;
+}
+
+async function resolveAuthState(
+  existingClient?: SupabaseClient,
+): Promise<AuthState> {
   const supabase = existingClient ?? (await createClient());
   const { data: claimsData, error: claimsError } =
     await supabase.auth.getClaims();
@@ -34,7 +57,7 @@ export async function getAuthState(existingClient?: SupabaseClient): Promise<Aut
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select(
-      "display_name, english_level, learning_interests, onboarding_completed",
+      "current_streak, display_name, english_level, learning_interests, onboarding_completed, xp",
     )
     .eq("id", userId)
     .maybeSingle();
@@ -45,6 +68,7 @@ export async function getAuthState(existingClient?: SupabaseClient): Promise<Aut
 
   return {
     profile: {
+      currentStreak: getNonnegativeMetric(profile.current_streak),
       displayName: profile.display_name,
       englishLevel: isCefrLevel(profile.english_level)
         ? profile.english_level
@@ -54,9 +78,18 @@ export async function getAuthState(existingClient?: SupabaseClient): Promise<Aut
         ? profile.learning_interests.filter(isLearningInterest)
         : [],
       onboardingCompleted: profile.onboarding_completed,
+      xp: getNonnegativeMetric(profile.xp),
     },
     status: "signed-in",
   };
+}
+
+const getCachedAuthState = cache(() => resolveAuthState());
+
+export function getAuthState(existingClient?: SupabaseClient) {
+  return existingClient
+    ? resolveAuthState(existingClient)
+    : getCachedAuthState();
 }
 
 export function getProfileDestination(profile: AuthenticatedProfile) {
