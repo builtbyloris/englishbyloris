@@ -1,0 +1,121 @@
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Colour foundations */
+  --color-background: #f5f5f0;
+  --color-background-secondary: #ecede7;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #fafbf8;
+  --color-border: #daddd5;
+  --color-text-primary: #151815;
+  --color-text-secondary: #687068;
+  --color-brand: #78a946;
+  --color-brand-strong: #608c35;
+  --color-word-rush: #8063d9;
+  --color-verb-challenge: #d8893a;
+  --color-describe-it: #4d8ed8;
+  --color-focus-ring: #608c35;
+
+  /* Surfaces */
+  --surface-glow-primary: rgb(120 169 70 / 12%);
+  --surface-glow-secondary: rgb(77 142 216 / 7%);
+  --shadow-surface: 0 16px 40px rgb(21 24 21 / 8%);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-background: #0e1210;
+  --color-background-secondary: #131915;
+  --color-surface: #18201b;
+  --color-surface-elevated: #202a23;
+  --color-border: #303a33;
+  --color-text-primary: #f4f6f2;
+  --color-text-secondary: #a6b0a8;
+  --color-brand: #b7e879;
+  --color-brand-strong: #9dd85d;
+  --color-word-rush: #8063d9;
+  --color-verb-challenge: #d8893a;
+  --color-describe-it: #4d8ed8;
+  --color-focus-ring: #b7e879;
+  --surface-glow-primary: rgb(183 232 121 / 10%);
+  --surface-glow-secondary: rgb(128 99 217 / 8%);
+  --shadow-surface: 0 18px 48px rgb(0 0 0 / 24%);
+}
+
+:root {
+  /* Typography */
+  --font-family-sans: Geist, Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-size-caption: 0.75rem;
+  --font-size-small: 0.875rem;
+  --font-size-body: 1rem;
+  --font-size-section: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --font-size-page-title: clamp(1.75rem, 1.5rem + 1.25vw, 2.5rem);
+  --font-size-hero: clamp(2.25rem, 1.75rem + 2.5vw, 4rem);
+  --line-height-tight: 1.1;
+  --line-height-heading: 1.2;
+  --line-height-body: 1.6;
+  --letter-spacing-tight: -0.04em;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+
+  /* Shape and layout */
+  --radius-control: 0.625rem;
+  --radius-button: 0.875rem;
+  --radius-card: 1.25rem;
+  --radius-card-large: 1.5rem;
+  --radius-pill: 999px;
+  --container-content: 82.5rem;
+  --container-gameplay: 45rem;
+  --content-gutter: var(--space-5);
+}
+
+@theme inline {
+  --color-app-background: var(--color-background);
+  --color-app-background-secondary: var(--color-background-secondary);
+  --color-app-surface: var(--color-surface);
+  --color-app-surface-elevated: var(--color-surface-elevated);
+  --color-app-border: var(--color-border);
+  --color-app-text-primary: var(--color-text-primary);
+  --color-app-text-secondary: var(--color-text-secondary);
+  --color-app-brand: var(--color-brand);
+  --color-app-brand-strong: var(--color-brand-strong);
+  --color-game-word-rush: var(--color-word-rush);
+  --color-game-verb-challenge: var(--color-verb-challenge);
+  --color-game-describe-it: var(--color-describe-it);
+  --font-app-sans: var(--font-family-sans);
+  --radius-app-control: var(--radius-control);
+  --radius-app-button: var(--radius-button);
+  --radius-app-card: var(--radius-card);
+  --radius-app-card-large: var(--radius-card-large);
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --content-gutter: var(--space-8);
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --content-gutter: var(--space-12);
+  }
+}
+
+@media (min-width: 90rem) {
+  :root {
+    --content-gutter: var(--space-16);
+  }
+}
