@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "questions": [
+    {
+      "sourceId": "synthetic-word-a1-001",
+      "game": {
+        "slug": "word-rush",
+        "name": "Word Rush",
+        "description": "Vocabulary recognition, definitions and contextual choices."
+      },
+      "cefrLevel": "A1",
+      "difficulty": 1,
+      "topic": { "slug": "synthetic-topic", "name": "Synthetic Topic" },
+      "concept": { "slug": "synthetic-concept", "name": "Synthetic Concept" },
+      "questionType": "definition_choice",
+      "prompt": "Which synthetic token means the test answer?",
+      "correctAnswer": "alpha-test-token",
+      "explanation": "The alpha test token is defined as the correct synthetic answer.",
+      "imagePath": null,
+      "audioPath": null,
+      "options": [
+        { "text": "alpha-test-token", "isCorrect": true, "position": 1 },
+        { "text": "beta-test-token", "isCorrect": false, "position": 2 },
+        { "text": "gamma-test-token", "isCorrect": false, "position": 3 },
+        { "text": "delta-test-token", "isCorrect": false, "position": 4 }
+      ]
+    },
+    {
+      "sourceId": "synthetic-word-a1-002",
+      "game": {
+        "slug": "word-rush",
+        "name": "Word Rush",
+        "description": "Vocabulary recognition, definitions and contextual choices."
+      },
+      "cefrLevel": "A1",
+      "difficulty": 2,
+      "topic": { "slug": "synthetic-topic", "name": "Synthetic Topic" },
+      "concept": { "slug": "synthetic-concept", "name": "Synthetic Concept" },
+      "questionType": "sentence_gap",
+      "prompt": "Choose the second synthetic token: ___.",
+      "correctAnswer": "epsilon-test-token",
+      "explanation": "The epsilon test token is the designated answer for this synthetic variant.",
+      "imagePath": null,
+      "audioPath": null,
+      "options": [
+        { "text": "epsilon-test-token", "isCorrect": true, "position": 1 },
+        { "text": "zeta-test-token", "isCorrect": false, "position": 2 },
+        { "text": "eta-test-token", "isCorrect": false, "position": 3 },
+        { "text": "theta-test-token", "isCorrect": false, "position": 4 }
+      ]
+    }
+  ]
+}

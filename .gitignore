@@ -49,3 +49,6 @@ Thumbs.db
 
 # Local-only files
 *.local
+
+# Private learning content (never commit real answer banks)
+/content/private/

@@ -5,8 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
+    "content:import": "node scripts/content/import-content.mjs",
+    "content:validate": "node scripts/content/validate-content.mjs",
     "start": "next start",
     "lint": "eslint",
+    "test:content": "node scripts/content/test-content-tools.mjs",
+    "test:content:db": "node scripts/content/test-content-database.mjs",
     "test:profile": "node scripts/verify-profile-preferences.mjs"
   },
   "dependencies": {
