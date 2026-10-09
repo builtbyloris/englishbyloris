@@ -9,10 +9,11 @@ import {
 
 const REPORT_PREFIX = "CONTENT_IMPORT_REPORT:";
 
-function parseArguments(argumentsList) {
+export function parseArguments(argumentsList) {
   const options = {
     allowRemote: false,
     file: null,
+    inactive: false,
     mode: "validate-only",
   };
 
@@ -29,6 +30,8 @@ function parseArguments(argumentsList) {
       options.mode = "validate-only";
     } else if (argument === "--allow-remote") {
       options.allowRemote = true;
+    } else if (argument === "--inactive") {
+      options.inactive = true;
     } else {
       throw new Error(`Unknown argument: ${argument}`);
     }
@@ -75,7 +78,7 @@ export function getPostgresEnvironment(databaseUrl, allowRemote = false) {
   };
 }
 
-export function buildImportSql(document, { dryRun }) {
+export function buildImportSql(document, { dryRun, inactive = false }) {
   const payload = Buffer.from(JSON.stringify(document), "utf8").toString("base64");
   const finishTransaction = dryRun ? "rollback;" : "commit;";
 
@@ -106,7 +109,8 @@ select
   item.question ->> 'explanation' as explanation,
   nullif(item.question ->> 'imagePath', '') as image_path,
   nullif(item.question ->> 'audioPath', '') as audio_path,
-  item.question -> 'options' as options
+  item.question -> 'options' as options,
+  ${inactive ? "false" : "true"}::boolean as is_active
 from content_import_payload,
 jsonb_array_elements(payload -> 'questions') with ordinality
   as item(question, ordinality);
@@ -231,6 +235,7 @@ begin
       or questions.explanation is distinct from stage.explanation
       or questions.image_path is distinct from stage.image_path
       or questions.audio_path is distinct from stage.audio_path
+      or questions.is_active <> stage.is_active
       or coalesce((
         select jsonb_agg(
           jsonb_build_object(
@@ -260,7 +265,8 @@ with inserted as (
     correct_answer,
     explanation,
     image_path,
-    audio_path
+    audio_path,
+    is_active
   )
   select
     games.id,
@@ -273,7 +279,8 @@ with inserted as (
     stage.correct_answer,
     stage.explanation,
     stage.image_path,
-    stage.audio_path
+    stage.audio_path,
+    stage.is_active
   from content_import_stage stage
   join public.games on games.slug = stage.game_slug
   join public.topics on topics.game_id = games.id
@@ -330,6 +337,7 @@ set constraints all immediate;
 
 select '${REPORT_PREFIX}' || jsonb_build_object(
   'mode', '${dryRun ? "dry-run" : "apply"}',
+  'inactive', ${inactive ? "true" : "false"},
   'questionsTotal', (select count(*) from content_import_stage),
   'questionsInserted', (select value from content_import_report where metric = 'questions_inserted'),
   'questionsSkipped', (select value from content_import_report where metric = 'questions_skipped'),
@@ -349,6 +357,7 @@ export function runContentImport({
   databaseUrl,
   document,
   dryRun,
+  inactive = false,
 }) {
   const postgresEnvironment = getPostgresEnvironment(databaseUrl, allowRemote);
   const validation = validateContentDocument(document);
@@ -363,7 +372,7 @@ export function runContentImport({
   const execution = spawnSync("psql", ["-X", "-qAt", "--set", "ON_ERROR_STOP=1"], {
     encoding: "utf8",
     env: { ...process.env, ...postgresEnvironment },
-    input: buildImportSql(document, { dryRun }),
+    input: buildImportSql(document, { dryRun, inactive }),
   });
 
   if (execution.error) {
@@ -409,6 +418,7 @@ if (isDirectExecution) {
         databaseUrl,
         document,
         dryRun: options.mode === "dry-run",
+        inactive: options.inactive,
       });
       console.log(JSON.stringify(report, null, 2));
       process.exitCode = report.validation.valid ? 0 : 1;

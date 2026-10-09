@@ -30,22 +30,42 @@ function queryValue(sql) {
   return result.stdout.trim();
 }
 
+function queryValueAsRole(role, sql) {
+  if (!["authenticated", "service_role"].includes(role)) {
+    throw new Error("Unsupported test role.");
+  }
+
+  return queryValue(`
+    begin;
+    set local role ${role};
+    ${sql}
+    rollback;
+  `);
+}
+
 const dryRun = runContentImport({
   databaseUrl,
   document: fixture,
   dryRun: true,
+  inactive: true,
 });
 assert.equal(dryRun.databaseReport.questionsInserted, 2);
 assert.equal(dryRun.databaseReport.questionsSkipped, 0);
+assert.equal(dryRun.databaseReport.inactive, true);
 assert.equal(queryValue("select count(*) from public.questions;"), "0");
 
 const firstApply = runContentImport({
   databaseUrl,
   document: fixture,
   dryRun: false,
+  inactive: true,
 });
 assert.equal(firstApply.databaseReport.questionsInserted, 2);
 assert.equal(firstApply.databaseReport.questionsSkipped, 0);
+assert.equal(
+  queryValue("select count(*) from public.questions where not is_active;"),
+  "2",
+);
 assert.equal(
   queryValue(`
     select concat_ws(',',
@@ -63,9 +83,50 @@ const secondApply = runContentImport({
   databaseUrl,
   document: fixture,
   dryRun: false,
+  inactive: true,
 });
 assert.equal(secondApply.databaseReport.questionsInserted, 0);
 assert.equal(secondApply.databaseReport.questionsSkipped, 2);
 assert.equal(queryValue("select count(*) from public.question_options;"), "8");
+assert.equal(
+  queryValueAsRole(
+    "authenticated",
+    "select count(id) from public.questions;",
+  ),
+  "0",
+);
+assert.equal(
+  queryValueAsRole(
+    "authenticated",
+    "select count(id) from public.question_options;",
+  ),
+  "0",
+);
+assert.equal(
+  queryValueAsRole(
+    "service_role",
+    `select concat_ws(',', count(id), count(correct_answer), count(explanation))
+     from public.questions;`,
+  ),
+  "2,2,2",
+);
+assert.equal(
+  queryValueAsRole(
+    "service_role",
+    "select concat_ws(',', count(id), count(is_correct)) from public.question_options;",
+  ),
+  "8,8",
+);
+
+assert.throws(
+  () =>
+    runContentImport({
+      databaseUrl,
+      document: fixture,
+      dryRun: false,
+      inactive: false,
+    }),
+  /Existing question conflicts with the import payload/,
+);
 
 console.log("Content importer database checks passed.");

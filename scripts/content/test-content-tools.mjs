@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   buildImportSql,
   getPostgresEnvironment,
+  parseArguments,
 } from "./import-content.mjs";
 import {
   readContentDocument,
@@ -96,7 +97,32 @@ assert.match(sql, /pg_advisory_xact_lock/);
 assert.match(sql, /on conflict .* do nothing/i);
 assert.match(sql, /set constraints all immediate;/);
 assert.match(sql, /rollback;/);
+assert.match(sql, /true::boolean as is_active/);
 assert.doesNotMatch(sql, /delete from public\./i);
+
+const inactiveSql = buildImportSql(validFixture, {
+  dryRun: false,
+  inactive: true,
+});
+assert.match(inactiveSql, /false::boolean as is_active/);
+assert.match(inactiveSql, /questions\.is_active <> stage\.is_active/);
+assert.match(inactiveSql, /'inactive', true/);
+assert.match(inactiveSql, /commit;/);
+
+assert.deepEqual(
+  parseArguments([
+    "--file",
+    "private-sample.json",
+    "--dry-run",
+    "--inactive",
+  ]),
+  {
+    allowRemote: false,
+    file: "private-sample.json",
+    inactive: true,
+    mode: "dry-run",
+  },
+);
 
 assert.throws(
   () =>
