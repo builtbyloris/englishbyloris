@@ -9,6 +9,7 @@
     "content:validate": "node scripts/content/validate-content.mjs",
     "start": "next start",
     "lint": "eslint",
+    "test:game-flow": "node --experimental-strip-types --no-warnings scripts/test-game-flow.mjs",
     "test:content": "node scripts/content/test-content-tools.mjs",
     "test:content:db": "node scripts/content/test-content-database.mjs",
     "test:profile": "node scripts/verify-profile-preferences.mjs"
